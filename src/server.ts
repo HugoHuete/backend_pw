@@ -1,6 +1,8 @@
 import express, { Application } from 'express';
 import cors from 'cors';
 import routerApi from './routes';
+import db from './db/connection';
+import config  from './config/config';
 
 class Server {
   private app: Application;
@@ -8,14 +10,28 @@ class Server {
 
   constructor() {
     this.app = express();
-    this.port = process.env.PORT || '3000';
+    this.port = config.port;
 
+    this.dbConnection();
     this.middlewares();
+    this.routes();
   }
 
-  middlewares() {
+  private async dbConnection() {
+    try {
+      await db.authenticate();
+      console.log('Database connected');
+    } catch (error) {
+      throw new Error(String(error));
+    }
+  }
+
+  private middlewares() {
     // cors
     this.app.use(cors());
+
+    // db connection
+    this.dbConnection();
 
     // Body reading
     this.app.use(express.json());
@@ -24,7 +40,7 @@ class Server {
     this.app.use(express.static('public'));
   }
 
-  routes() {
+  private routes() {
     routerApi(this.app);
   }
 
