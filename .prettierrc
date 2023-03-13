@@ -1,0 +1,22 @@
+{
+  "singleQuote": true,
+  "trailingComma": "all",
+  "useTabs": false,
+  "tabWidth": 2,
+  "printWidth":100,
+  "bracketSpacing": true,
+  "overrides": [
+    {
+      "files": "*.yaml",
+      "options": {
+        "tadWidth": 2,
+        "printWidth": 40,
+        "singleQuote": true
+      }
+    },
+    {
+      "files": ".prettierrc",
+      "options": { "parser": "json" }
+    }
+  ]
+}
