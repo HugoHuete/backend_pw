@@ -3,7 +3,8 @@ import supplierRouter from './suppliers.routes';
 
 const routerApi = (app: Application) => {
   const router = Router();
-  app.use('api/v1', router);
+  app.use('/api/v1', router);
+
   router.use('/suppliers', supplierRouter);
 };
 
