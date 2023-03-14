@@ -4,21 +4,10 @@ import { Supplier } from '../models/';
 const createSupplier = async (req: Request, res: Response) => {
   const { body } = req;
   try {
-    // Check if the supplier is not created
-    const supplierExists = await Supplier.findOne({
-      where: {
-        name: body.name,
-      },
-    });
-
-    if (supplierExists) {
-      return res.status(400).json({ msg: `El proveedor ${body.name} ya está registrado.` });
-    }
-
-    // If it doesn't exist, create it
     const supplier = Supplier.build(body);
     await supplier.save();
     return res.json(supplier);
+
   } catch (error) {
     return res.status(500).json({
       msg: 'Error al crear proveedor - Hable con el administrador',
@@ -41,10 +30,6 @@ const getSupplier = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const supplier = await Supplier.findByPk(id);
-    if (!supplier) {
-      res.status(404).json({msg: 'Proveedor no encontrado'});
-    }
-
     return res.json(supplier);
   } catch (error) {
     return res.status(500).json({
@@ -63,9 +48,7 @@ const updateSupplier = async (req: Request, res: Response) => {
     if (!supplier) {
       return res.status(404).json({ msg: 'Proveedor no encontrado' });
     }
-
     supplier.update(body);
-
     return res.json(supplier);
   } catch (error) {
     return res.status(500).json({
@@ -84,13 +67,12 @@ const deleteSupplier = async (req: Request, res: Response) => {
       return res.status(404).json({ msg: 'Proveedor no encontrado' });
     }
 
-    if(!supplier.dataValues.status){
-      return res.status(400).json({msg: 'Proveedor ya se encuentra eliminado'});
+    if (!supplier.dataValues.status) {
+      return res.status(400).json({ msg: 'Proveedor ya se encuentra eliminado' });
     }
 
     supplier.update({ status: false });
     return res.json(supplier);
-
   } catch (error) {
     return res.status(500).json({
       msg: 'Error al eliminar el proveedor - Hable con el administrador',
