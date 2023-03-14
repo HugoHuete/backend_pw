@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import Supplier from '../models/supplier.model';
+import { Supplier } from '../models/';
 
 const createSupplier = async (req: Request, res: Response) => {
   const { body } = req;
@@ -12,7 +12,7 @@ const createSupplier = async (req: Request, res: Response) => {
     });
 
     if (supplierExists) {
-      return res.status(404).json({ msg: `El proveedor ${body.name} ya está registrado.` });
+      return res.status(400).json({ msg: `El proveedor ${body.name} ya está registrado.` });
     }
 
     // If it doesn't exist, create it
@@ -41,6 +41,10 @@ const getSupplier = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const supplier = await Supplier.findByPk(id);
+    if (!supplier) {
+      res.status(404).json({msg: 'Proveedor no encontrado'});
+    }
+
     return res.json(supplier);
   } catch (error) {
     return res.status(500).json({
@@ -54,11 +58,10 @@ const updateSupplier = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   try {
-
     const supplier = await Supplier.findByPk(id);
 
     if (!supplier) {
-      return res.status(404).json({ msg: 'Usuario no existe.' });
+      return res.status(404).json({ msg: 'Proveedor no encontrado' });
     }
 
     supplier.update(body);
@@ -66,9 +69,33 @@ const updateSupplier = async (req: Request, res: Response) => {
     return res.json(supplier);
   } catch (error) {
     return res.status(500).json({
-      msg: 'Error al obtener el proveedor - Hable con el administrador',
+      msg: 'Error al actualizar el proveedor - Hable con el administrador',
     });
   }
 };
 
-export { createSupplier, getSuppliers, getSupplier, updateSupplier };
+const deleteSupplier = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  try {
+    const supplier = await Supplier.findByPk(id);
+
+    if (!supplier) {
+      return res.status(404).json({ msg: 'Proveedor no encontrado' });
+    }
+
+    if(!supplier.dataValues.status){
+      return res.status(400).json({msg: 'Proveedor ya se encuentra eliminado'});
+    }
+
+    supplier.update({ status: false });
+    return res.json(supplier);
+
+  } catch (error) {
+    return res.status(500).json({
+      msg: 'Error al eliminar el proveedor - Hable con el administrador',
+    });
+  }
+};
+
+export { createSupplier, getSuppliers, getSupplier, updateSupplier, deleteSupplier };
