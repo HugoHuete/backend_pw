@@ -2,7 +2,7 @@ import express, { Application } from 'express';
 import cors from 'cors';
 import routerApi from './routes';
 import db from './db/connection';
-import config  from './config/config';
+import config from './config';
 
 class Server {
   private app: Application;
@@ -30,14 +30,11 @@ class Server {
     // cors
     this.app.use(cors());
 
-    // db connection
-    this.dbConnection();
-
     // Body reading
     this.app.use(express.json());
 
     // public folder
-    this.app.use(express.static('public'));
+    //this.app.use(express.static('public'));
   }
 
   private routes() {
