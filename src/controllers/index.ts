@@ -1,5 +1,5 @@
-import { createSupplier, getSuppliers } from './supplier.controller';
+import { createSupplier, getSuppliers, getSupplier, updateSupplier } from './supplier.controller';
 
 export {
-  createSupplier, getSuppliers
+  createSupplier, getSuppliers, getSupplier, updateSupplier
 };
