@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import config from '../config/config';
+import config from '../config';
 
 const database = config.database;
 const username = config.dbUser;
