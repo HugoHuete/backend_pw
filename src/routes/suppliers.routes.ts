@@ -16,11 +16,12 @@ router.get('/', getSuppliers);
 
 router.post(
   '/',
-  [ check(['id', 'status'], 'No incluir los campos "id" y "status".').isEmpty(),
+  [
     check('name', 'El nombre tiene que ser un string no vacío.')
       .isString()
-      .withMessage('Proveedor ya existe')
-      .custom(supplierNameExists),
+      .custom(supplierNameExists)
+      .withMessage('Proveedor ya existe'),
+    check('status', 'No se debe incluir el campo status.').isEmpty(),
     fieldValidator,
   ],
   createSupplier,
