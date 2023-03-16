@@ -2,7 +2,7 @@ import db from '../db/connection';
 import { DataTypes } from 'sequelize';
 
 const Supplier = db.define(
-  'suppliers',
+  'supplier',
   {
     name: { type: DataTypes.STRING },
     status: { type: DataTypes.BOOLEAN, defaultValue: true },
