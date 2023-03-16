@@ -4,7 +4,8 @@ import { DataTypes } from 'sequelize';
 const Supplier = db.define(
   'supplier',
   {
-    name: { type: DataTypes.STRING },
+    id: { primaryKey: true, autoIncrement: true, type: DataTypes.INTEGER },
+    name: { type: DataTypes.STRING, allowNull: false, unique: true },
     status: { type: DataTypes.BOOLEAN, defaultValue: true },
   },
   { timestamps: false },
