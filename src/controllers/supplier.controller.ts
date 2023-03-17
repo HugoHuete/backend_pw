@@ -20,6 +20,7 @@ const getSuppliers = async (_req: Request, res: Response) => {
     const suppliers = await Supplier.findAll();
     return res.json({ suppliers });
   } catch (error) {
+    console.error(error);
     return res.status(500).json({
       msg: 'Error al obtener los proveedores - Hable con el administrador',
     });
