@@ -1,57 +1,40 @@
 import { Router } from 'express';
-import { check } from 'express-validator';
+import { body, check } from 'express-validator';
 import { fieldValidator } from '../middlewares';
 import {
-  createSupplier,
-  getSuppliers,
-  getSupplier,
-  updateSupplier,
-  deleteSupplier,
+  SupplierControllers 
 } from '../controllers';
-import { supplierIdExists, supplierNameExists } from '../helpers';
+import { supplierIdExists, supplierNameNotExists } from '../helpers';
 
 const router = Router();
+const supplier = new SupplierControllers();
 
-router.get('/', getSuppliers);
+router.get('/', supplier.findAll);
+router.get('/:id', [check('id').custom(supplierIdExists), fieldValidator], supplier.findById);
+router.get('/:id/purchases', [check('id').custom(supplierIdExists), fieldValidator], supplier.getPurchases);
 
 router.post(
   '/',
   [
-    check('name', 'El nombre tiene que ser un string no vacío.')
-      .isString()
-      .custom(supplierNameExists)
-      .withMessage('Proveedor ya existe'),
+    check('name').custom(supplierNameNotExists),
     check('status', 'No se debe incluir el campo status.').isEmpty(),
     fieldValidator,
   ],
-  createSupplier,
-);
-
-router.get(
-  '/:id',
-  [check('id', 'El id de ese proveedor no existe').custom(supplierIdExists), fieldValidator],
-  getSupplier,
+  supplier.create,
 );
 
 router.put(
   '/:id',
   [
-    check('id', 'El id tiene que ser de tipo número.').isNumeric(),
-    check('name', 'El nombre tiene que ser un string no vacío.')
-      .optional()
-      .isString()
-      .custom(supplierNameExists)
-      .withMessage('Ya existe un proveedor con ese nombre.'),
+    body('id', 'El id no se puede actualizar.').isEmpty(),
+    check('id').custom(supplierIdExists),
+    check('name').optional().custom(supplierNameNotExists),
     check('status', 'El status tiene que ser de tipo booleano.').optional().isBoolean(),
     fieldValidator,
   ],
-  updateSupplier,
+  supplier.update,
 );
 
-router.delete(
-  '/:id',
-  [check('id', 'El id tiene que ser de tipo número.').isNumeric(), fieldValidator],
-  deleteSupplier,
-);
+router.delete('/:id', [check('id').custom(supplierIdExists), fieldValidator], supplier.deactivate);
 
 export default router;

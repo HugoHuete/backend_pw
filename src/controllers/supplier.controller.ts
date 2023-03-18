@@ -7,7 +7,7 @@ export class SupplierControllers {
     try {
       const supplier = Supplier.build(body);
       await supplier.save();
-      return res.json(supplier);
+      return res.status(201).json(supplier);
     } catch (error) {
       return res.status(500).json({
         msg: 'Error al crear proveedor - Hable con el administrador',
@@ -79,11 +79,7 @@ export class SupplierControllers {
     try {
       const supplier = await Supplier.findByPk(id);
 
-      if (!supplier) {
-        return res.status(404).json({ msg: 'Proveedor no encontrado' });
-      }
-
-      if (!supplier.dataValues.status) {
+      if (!supplier?.dataValues.status) {
         return res.status(400).json({ msg: 'Proveedor ya se encuentra eliminado' });
       }
 

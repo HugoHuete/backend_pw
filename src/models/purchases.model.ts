@@ -22,7 +22,7 @@ Purchase.init(
   {
     id: { primaryKey: true, type: DataTypes.INTEGER, autoIncrement: true },
     date: { type: DataTypes.DATE, allowNull: false },
-    supplier_id: { type: DataTypes.BOOLEAN, defaultValue: true, allowNull: false },
+    supplier_id: { type: DataTypes.INTEGER, defaultValue: true, allowNull: false },
     status: { type: DataTypes.BOOLEAN, defaultValue: true },
     received_date: { type: DataTypes.DATE },
     exchange_rate: { type: DataTypes.NUMBER, allowNull: false },
