@@ -8,7 +8,6 @@ Supplier.hasMany(Purchase, {
   foreignKey:'supplier_id', as: 'purchases'
 });
 
-Purchase.belongsTo(Supplier);
 
 
 

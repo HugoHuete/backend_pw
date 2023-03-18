@@ -1,12 +1,10 @@
 import db from '../db/connection';
 import {
+  CreationOptional,
+  DataTypes,
   HasManyAddAssociationMixin,
   HasManyCountAssociationsMixin,
   HasManyCreateAssociationMixin,
-} from 'sequelize';
-import {
-  CreationOptional,
-  DataTypes,
   InferAttributes,
   InferCreationAttributes,
   Model,
@@ -33,5 +31,6 @@ Supplier.init(
   },
   { tableName: 'suppliers', sequelize: db, timestamps: false },
 );
+
 
 export { Supplier };
