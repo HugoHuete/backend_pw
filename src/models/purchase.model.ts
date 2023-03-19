@@ -6,6 +6,7 @@ import {
   InferCreationAttributes,
   Model,
 } from 'sequelize';
+import { Supplier } from './supplier.model';
 
 class Purchase extends Model<InferAttributes<Purchase>, InferCreationAttributes<Purchase>> {
   declare id: CreationOptional<number>;
@@ -22,14 +23,18 @@ Purchase.init(
   {
     id: { primaryKey: true, type: DataTypes.INTEGER, autoIncrement: true },
     date: { type: DataTypes.DATE, allowNull: false },
-    supplier_id: { type: DataTypes.INTEGER, defaultValue: true, allowNull: false },
+    supplier_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: { model: Supplier, key: 'id' },
+    },
     status: { type: DataTypes.BOOLEAN, defaultValue: true },
     received_date: { type: DataTypes.DATE },
     exchange_rate: { type: DataTypes.NUMBER, allowNull: false },
     purchase_link: { type: DataTypes.STRING },
     comment: { type: DataTypes.STRING },
   },
-  { tableName: 'purchases', timestamps: false, sequelize: db },
+  { tableName: 'purchases',  sequelize: db },
 );
 
 export { Purchase };

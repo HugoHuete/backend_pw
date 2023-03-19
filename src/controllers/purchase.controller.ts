@@ -1,84 +1,102 @@
 import { Request, Response } from 'express';
-import { Purchase } from '../models/';
+import { InferAttributes, WhereOptions, Op } from 'sequelize';
+import { Purchase, Supplier } from '../models/';
 
-const createPurchase = async (req: Request, res: Response) => {
-  const { body } = req;
-  try {
-    const purchase = Purchase.build(body);
-    await purchase.save();
-    return res.json(purchase);
+export class PurchaseControllers {
+  create = async (req: Request, res: Response) => {
+    const { body } = req;
+    try {
+      const purchase = Purchase.build(body);
+      await purchase.save();
+      return res.json(purchase);
+    } catch (error) {
+      return res.status(500).json({
+        msg: 'Error al crear compra - Hable con el administrador',
+      });
+    }
+  };
 
-  } catch (error) {
-    return res.status(500).json({
-      msg: 'Error al crear compra - Hable con el administrador',
-    });
-  }
-};
+  findAll = async (req: Request, res: Response) => {
+    const query = req.query;
+    const whereOptions: WhereOptions<InferAttributes<Purchase>> = {};
 
-// const getPurchases = async (_req: Request, res: Response) => {
-//   try {
-//     const suppliers = await Supplier.findAll();
-//     return res.json({ suppliers });
-//   } catch (error) {
-//     return res.status(500).json({
-//       msg: 'Error al obtener los proveedores - Hable con el administrador',
-//     });
-//   }
-// };
+    // Validate if startdate and endDate are in query
+    if (query['start-date']) {
+      const startDate = new Date(String(query['start-date']));
+      whereOptions.date = { [Op.gte]: startDate };
+    }
+    if (query['end-date']) {
+      const endDate = new Date(String(query['end-date']));
+      whereOptions.date = { [Op.lte]: endDate };
+    }
+    // Validate if supplier_id is in query
+    query.supplier ? (whereOptions.supplier_id = Number(query.supplier)) : '';
 
-// const getPurchase = async (req: Request, res: Response) => {
-//   const { id } = req.params;
-//   try {
-//     const supplier = await Supplier.findByPk(id);
-//     return res.json(supplier);
-//   } catch (error) {
-//     return res.status(500).json({
-//       msg: 'Error al obtener el proveedor - Hable con el administrador',
-//     });
-//   }
-// };
+    try {
+      const purchases = await Purchase.findAll({
+        include: { model: Supplier, attributes: ['name'] },
+        where: whereOptions,
+      });
+      return res.json({ purchases });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({
+        msg: 'Error al obtener las compras - Hable con el administrador',
+      });
+    }
+  };
 
-// const updatePurchase = async (req: Request, res: Response) => {
-//   const { body } = req;
-//   const { id } = req.params;
+  findById = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    try {
+      const purchase = await Purchase.findByPk(id);
+      return res.json(purchase);
+    } catch (error) {
+      return res.status(500).json({
+        msg: 'Error al obtener el proveedor - Hable con el administrador',
+      });
+    }
+  };
 
-//   try {
-//     const supplier = await Supplier.findByPk(id);
+  update = async (req: Request, res: Response) => {
+    const { body } = req;
+    const { id } = req.params;
 
-//     if (!supplier) {
-//       return res.status(404).json({ msg: 'Proveedor no encontrado' });
-//     }
-//     supplier.update(body);
-//     return res.json(supplier);
-//   } catch (error) {
-//     return res.status(500).json({
-//       msg: 'Error al actualizar el proveedor - Hable con el administrador',
-//     });
-//   }
-// };
+    try {
+      const purchase = await Purchase.findByPk(id);
 
-// const deletePurchase = async (req: Request, res: Response) => {
-//   const { id } = req.params;
+      if (!purchase) {
+        return res.status(404).json({ msg: 'Proveedor no encontrado' });
+      }
+      purchase.update(body);
+      return res.json(purchase);
+    } catch (error) {
+      return res.status(500).json({
+        msg: 'Error al actualizar el proveedor - Hable con el administrador',
+      });
+    }
+  };
 
-//   try {
-//     const supplier = await Supplier.findByPk(id);
+  deactivate = async (req: Request, res: Response) => {
+    const { id } = req.params;
 
-//     if (!supplier) {
-//       return res.status(404).json({ msg: 'Proveedor no encontrado' });
-//     }
+    try {
+      const purchase = await Purchase.findByPk(id);
 
-//     if (!supplier.dataValues.status) {
-//       return res.status(400).json({ msg: 'Proveedor ya se encuentra eliminado' });
-//     }
+      if (!purchase) {
+        return res.status(404).json({ msg: 'Compra no encontrada' });
+      }
 
-//     supplier.update({ status: false });
-//     return res.json(supplier);
-//   } catch (error) {
-//     return res.status(500).json({
-//       msg: 'Error al eliminar el proveedor - Hable con el administrador',
-//     });
-//   }
-// };
+      if (!purchase.dataValues.status) {
+        return res.status(400).json({ msg: 'Proveedor ya se encuentra eliminado' });
+      }
 
-export { createPurchase, //getPurchases, getPurchase, updatePurchase, deletePurchase };
-};
+      purchase.update({ status: false });
+      return res.json(purchase);
+    } catch (error) {
+      return res.status(500).json({
+        msg: 'Error al eliminar el proveedor - Hable con el administrador',
+      });
+    }
+  };
+}

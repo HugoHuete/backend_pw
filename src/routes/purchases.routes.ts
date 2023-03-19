@@ -1,34 +1,35 @@
 import { Router } from 'express';
 import { check } from 'express-validator';
+
 import { fieldValidator } from '../middlewares';
+import { PurchaseControllers } from '../controllers';
 import { supplierIdExists } from '../helpers';
-import { createPurchase } from '../controllers/purchase.controller';
 
 const router = Router();
+const purchase = new PurchaseControllers();
 
-// router.get('/');
+router.get('/', purchase.findAll);
 
 router.post(
   '/',
   [
-    check(['id', 'status'], 'No incluir los campos "id" y "status".').isEmpty(),
+    check('id', 'No incluir el campo "id".').isEmpty(),
     check(['date', 'received_date'], 'La fecha es requerida.')
       .notEmpty()
       .withMessage('Formato de fecha incorrecta.')
       .isDate(),
-    check('supplier_id', 'El id del proveedor es requerido.')
-      .isNumeric()
-      .withMessage('No hay ningun proveedor con ese id.')
-      .custom(supplierIdExists),
-    check('purchase_link', 'Tiene que ser una URL').isURL(),
-    check('comment', 'Tiene que ser de tipo texto').isString(),
+    check('supplier_id').custom(supplierIdExists),
+    check('purchase_link', 'Tiene que ser una URL').optional().isURL(),
+    check('comment', 'Tiene que ser de tipo texto').optional().isString(),
     fieldValidator,
   ],
-  createPurchase,
+  purchase.create,
 );
 
-// router.get();
-// router.put();
+router.get('/:id', [], purchase.findById);
+
+router.put('/:id', [], purchase.update);
+
 // router.delete();
 
 export default router;
