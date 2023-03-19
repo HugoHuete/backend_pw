@@ -10,7 +10,7 @@ import {
   Model,
   HasManyGetAssociationsMixin,
 } from 'sequelize';
-import { Purchase } from './purchases.model';
+import { Purchase } from './purchase.model';
 
 class Supplier extends Model<InferAttributes<Supplier>, InferCreationAttributes<Supplier>> {
   declare id: CreationOptional<number>;
@@ -29,8 +29,7 @@ Supplier.init(
     name: { type: DataTypes.STRING, allowNull: false, unique: true },
     status: { type: DataTypes.BOOLEAN, defaultValue: true },
   },
-  { tableName: 'suppliers', sequelize: db, timestamps: false },
+  { tableName: 'suppliers', sequelize: db },
 );
-
 
 export { Supplier };

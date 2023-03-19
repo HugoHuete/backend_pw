@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
-import { Supplier } from '../models/';
+import db from '../db/connection';
+import { Purchase, Supplier } from '../models/';
 
 export class SupplierControllers {
   create = async (req: Request, res: Response) => {
@@ -17,8 +18,18 @@ export class SupplierControllers {
 
   findAll = async (_req: Request, res: Response) => {
     try {
-      const suppliers = await Supplier.findAll();
-      return res.json({ suppliers });
+      const totalSuppliers = await Supplier.count({ where: { status: true } });
+      const suppliers = await Supplier.findAll({
+        attributes:['id', 'name', [db.fn('COUNT', db.col('Purchases.id')), 'compras_totales']],
+        where: { status: true },
+        order: ['id'],
+        include: {
+          model: Purchase,
+          attributes:[]
+        },
+        group:['Supplier.id'],
+      });
+      return res.json({ total: totalSuppliers, suppliers });
     } catch (error) {
       console.error(error);
       return res.status(500).json({
@@ -92,4 +103,3 @@ export class SupplierControllers {
     }
   };
 }
-
