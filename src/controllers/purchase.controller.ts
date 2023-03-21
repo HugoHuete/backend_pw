@@ -8,40 +8,43 @@ export class PurchaseControllers {
     try {
       const purchase = Purchase.build(body);
       await purchase.save();
-      return res.json(purchase);
+      return res.status(201).json(purchase);
     } catch (error) {
       return res.status(500).json({
-        msg: 'Error al crear compra - Hable con el administrador',
+        msg: 'Error at creating purchase - Talk to admin',
       });
     }
   };
 
   findAll = async (req: Request, res: Response) => {
-    const query = req.query;
+    const { supplier, startDate, endDate } = req.query;
     const whereOptions: WhereOptions<InferAttributes<Purchase>> = {};
 
-    // Validate if startdate and endDate are in query
-    if (query['start-date']) {
-      const startDate = new Date(String(query['start-date']));
-      whereOptions.date = { [Op.gte]: startDate };
-    }
-    if (query['end-date']) {
-      const endDate = new Date(String(query['end-date']));
-      whereOptions.date = { [Op.lte]: endDate };
-    }
     // Validate if supplier_id is in query
-    query.supplier ? (whereOptions.supplier_id = Number(query.supplier)) : '';
+    supplier ? (whereOptions.supplier_id = Number(supplier)) : '';
 
+    // Validate if startdate and endDate are in query
+    if (startDate) {
+      const start = new Date(String(startDate));
+      whereOptions.date = { [Op.gte]: start };
+    }
+    if (endDate) {
+      const end = new Date(String(endDate));
+      whereOptions.date = { [Op.lte]: end };
+    }
+
+    // Try to get purchases with where options
     try {
       const purchases = await Purchase.findAll({
         include: { model: Supplier, attributes: ['name'] },
         where: whereOptions,
+        order: ['id'],
       });
-      return res.json({ purchases });
+      const total = await Purchase.count({ where: whereOptions });
+      return res.json({ total, purchases });
     } catch (error) {
-      console.error(error);
       return res.status(500).json({
-        msg: 'Error al obtener las compras - Hable con el administrador',
+        msg: 'Error getting purchases - Talk to admin.',
       });
     }
   };
@@ -49,11 +52,18 @@ export class PurchaseControllers {
   findById = async (req: Request, res: Response) => {
     const { id } = req.params;
     try {
-      const purchase = await Purchase.findByPk(id);
+      const purchase = await Purchase.findByPk(id, {
+        include: { model: Supplier, attributes: ['name'] },
+      });
+
+      if (!purchase) {
+        return res.status(404).json({ msg: `Purchase with id (${id}) not found.` });
+      }
+
       return res.json(purchase);
     } catch (error) {
       return res.status(500).json({
-        msg: 'Error al obtener el proveedor - Hable con el administrador',
+        msg: 'Error getting purchase - Talk to admin',
       });
     }
   };
@@ -66,13 +76,13 @@ export class PurchaseControllers {
       const purchase = await Purchase.findByPk(id);
 
       if (!purchase) {
-        return res.status(404).json({ msg: 'Proveedor no encontrado' });
+        return res.status(404).json({ msg: `Purchase with id (${id}) not found.` });
       }
       purchase.update(body);
       return res.json(purchase);
     } catch (error) {
       return res.status(500).json({
-        msg: 'Error al actualizar el proveedor - Hable con el administrador',
+        msg: 'Error updating purchase - talk to admin',
       });
     }
   };
@@ -84,18 +94,14 @@ export class PurchaseControllers {
       const purchase = await Purchase.findByPk(id);
 
       if (!purchase) {
-        return res.status(404).json({ msg: 'Compra no encontrada' });
+        return res.status(404).json({ msg: `Purchase with id (${id}) not found.` });
       }
 
-      if (!purchase.dataValues.status) {
-        return res.status(400).json({ msg: 'Proveedor ya se encuentra eliminado' });
-      }
-
-      purchase.update({ status: false });
+      purchase.update({ deleted: true });
       return res.json(purchase);
     } catch (error) {
       return res.status(500).json({
-        msg: 'Error al eliminar el proveedor - Hable con el administrador',
+        msg: 'Error deleting purchase - talk to admin',
       });
     }
   };
