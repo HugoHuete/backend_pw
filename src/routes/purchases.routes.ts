@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import { body, check, query } from 'express-validator';
-
 import { fieldValidator } from '../middlewares';
 import { PurchaseControllers } from '../controllers';
+import { checkDateFormat } from '../helpers';
 
 const router = Router();
 const purchase = new PurchaseControllers();
@@ -21,14 +21,11 @@ router.post(
   '/',
   [
     check('id', 'Id must not be included.').isEmpty(),
-    check(['date', 'received_date'], 'Date is required.')
+    check(['date', 'received_date']).custom(checkDateFormat),
+    check('supplier_id', 'Supplier_id is required.')
       .exists()
-      .withMessage('Date format must be "yyyy-mm-dd".')
-      .isDate(),
-    check('supplier_id', 'Supplier id is required.')
-      .exists()
-      .withMessage('Supplier id must be type integer.')
-      .isInt(),
+      .isInt()
+      .withMessage('Supplier id must be type integer.'),
     check('status', 'Permited values are: Pending or Received')
       .optional()
       .isIn(['Pending', 'Received']),
@@ -51,8 +48,8 @@ router.put(
   [
     body('id', 'Purchase id cannot be updated.').isEmpty(),
     check('id', 'Purchase id must be an integer.').isInt(),
-    check(['date', 'received_date'], 'Date format must be "yyyy-mm-dd".').optional().isDate(),
-    check('supplier_id', 'Supplier id must be type integer.').isInt(),
+    check(['date', 'received_date']).optional().custom(checkDateFormat),
+    check('supplier_id', 'Supplier id must be type integer.').optional().isInt(),
     check('status', 'Permited values are: Pending or Received')
       .optional()
       .isIn(['Pending', 'Received']),

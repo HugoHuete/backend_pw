@@ -3,19 +3,20 @@ import { InferAttributes, WhereOptions, Op } from 'sequelize';
 import { Purchase, Supplier } from '../models/';
 
 export class PurchaseControllers {
+  // Create a purchase
   create = async (req: Request, res: Response) => {
     const { body } = req;
     try {
       const purchase = Purchase.build(body);
       await purchase.save();
-      return res.status(201).json(purchase);
-    } catch (error) {
-      return res.status(500).json({
-        msg: 'Error at creating purchase - Talk to admin',
-      });
+      return res.status(201).json({ code: 201, data: purchase, error: false });
+    } catch (err) {
+      const data = 'Error at creating purchase - Talk to admin';
+      return res.status(500).json({ code: 500, data, error: true });
     }
   };
 
+  // Find all purchases. Optional queries: supplier_id, startdate, enddate
   findAll = async (req: Request, res: Response) => {
     const { supplier, startDate, endDate } = req.query;
     const whereOptions: WhereOptions<InferAttributes<Purchase>> = {};
@@ -40,12 +41,10 @@ export class PurchaseControllers {
         where: whereOptions,
         order: ['id'],
       });
-      const total = await Purchase.count({ where: whereOptions });
-      return res.json({ total, purchases });
-    } catch (error) {
-      return res.status(500).json({
-        msg: 'Error getting purchases - Talk to admin.',
-      });
+      return res.json({ code: 200, data: purchases, error: false });
+    } catch (err) {
+      const data = 'Error getting purchases - Talk to admin.';
+      return res.status(500).json({ code: 500, data, error: true });
     }
   };
 
@@ -57,14 +56,14 @@ export class PurchaseControllers {
       });
 
       if (!purchase) {
-        return res.status(404).json({ msg: `Purchase with id (${id}) not found.` });
+        const data = `Purchase with id (${id}) not found.`;
+        return res.status(404).json({ code: 404, data, error: true });
       }
 
-      return res.json(purchase);
-    } catch (error) {
-      return res.status(500).json({
-        msg: 'Error getting purchase - Talk to admin',
-      });
+      return res.json({ code: 200, data: purchase, error: false });
+    } catch (err) {
+      const data = 'Error getting purchase - Talk to admin.';
+      return res.status(500).json({ code: 500, data, error: true });
     }
   };
 
@@ -76,14 +75,14 @@ export class PurchaseControllers {
       const purchase = await Purchase.findByPk(id);
 
       if (!purchase) {
-        return res.status(404).json({ msg: `Purchase with id (${id}) not found.` });
+        const data = `Purchase with id (${id}) not found.`;
+        return res.status(404).json({ code: 404, data, error: true });
       }
       purchase.update(body);
-      return res.json(purchase);
-    } catch (error) {
-      return res.status(500).json({
-        msg: 'Error updating purchase - talk to admin',
-      });
+      return res.json({ code: 200, data: purchase, error: false });
+    } catch (err) {
+      const data = 'Error updating purchase - talk to admin';
+      return res.status(500).json({ code: 500, data, error: true });
     }
   };
 
@@ -94,15 +93,15 @@ export class PurchaseControllers {
       const purchase = await Purchase.findByPk(id);
 
       if (!purchase) {
-        return res.status(404).json({ msg: `Purchase with id (${id}) not found.` });
+        const data = `Purchase with id (${id}) not found.`;
+        return res.status(404).json({ code: 404, data, error: true });
       }
 
       purchase.update({ deleted: true });
       return res.json(purchase);
-    } catch (error) {
-      return res.status(500).json({
-        msg: 'Error deleting purchase - talk to admin',
-      });
+    } catch (err) {
+      const data = 'Error deleting purchase - talk to admin';
+      return res.status(500).json({ code: 500, data, error: true });
     }
   };
 }
