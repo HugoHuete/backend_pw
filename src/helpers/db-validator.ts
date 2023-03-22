@@ -1,13 +1,25 @@
 import { Purchase, Supplier } from '../models';
 import { Model, ModelStatic } from 'sequelize';
 import { DateTime } from 'luxon';
+import { CustomValidator, Meta } from 'express-validator';
 
-const checkDateFormat = (date: string) => {
+const checkDateFormat:CustomValidator = (date: string | null, { req, path }:Meta) => {
+  // Check if field exists (path)
+  if (!req.body[path]) {
+    throw new Error(`${path} is required.`);
+  }
+  
+  // Check if date exists and is string
+  if (!(typeof date === 'string')) {
+    throw new Error('Date must be a string formatted: yyyy-mm-dd.');
+  }
+
   // yyyy-mm-dd
   const dateFormatted = DateTime.fromISO(date);
 
+  // Chec if is a valid date
   if (!dateFormatted.isValid) {
-    throw new Error('Invalid date.');
+    throw new Error(`Invalid ${path}`);
   }
   return true;
 };
