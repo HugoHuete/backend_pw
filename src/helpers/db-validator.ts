@@ -2,12 +2,11 @@ import { Purchase, Supplier } from '../models';
 import { Model, ModelStatic } from 'sequelize';
 import { DateTime } from 'luxon';
 
-
-const checkDateFormat = (date:string) => {
+const checkDateFormat = (date: string) => {
   // yyyy-mm-dd
   const dateFormatted = DateTime.fromISO(date);
 
-  if (!dateFormatted.isValid ) {
+  if (!dateFormatted.isValid) {
     throw new Error('Invalid date.');
   }
   return true;
@@ -18,7 +17,7 @@ const nameNotExists = async (name: unknown, model: ModelStatic<Model>) => {
   if (!name) {
     throw new Error('El nombre es requerido.');
   }
-  
+
   if (typeof name !== 'string' || name.length === 0) {
     throw new Error('El nombre debe ser un string no vacío.');
   }
