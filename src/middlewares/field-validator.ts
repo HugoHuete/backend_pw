@@ -7,7 +7,7 @@ export const fieldValidator = (req:Request, res:Response, next:NextFunction) => 
   if (!errors.isEmpty()){
     const errorsArray = errors.array();
     const data = errorsArray.map(error => error.msg);
-    return res.status(400).json({status:400, data, error:true});
+    return res.status(400).json({code:400, data, error:true});
   }
   return next();
 };
